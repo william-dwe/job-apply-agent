@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Fail if a private value (from assets/profile.yaml or assets/leak-extra.txt) appears in tracked files or HEAD history.
+Usage: bin/leak-check | bin/leak-check --selftest. Install as hook: ln -s ../../bin/leak-check .git/hooks/pre-push"""
+import re, subprocess, sys, tempfile, pathlib
+
+PUBLIC = {'github.com', 'www.github.com', 'linkedin.com', 'www.linkedin.com'}
+
+def sh(*a, cwd=None):
+    return subprocess.run(a, cwd=cwd, capture_output=True, text=True).stdout
+
+def tokens(root):
+    t = set()
+    p = root / 'assets/profile.yaml'
+    if p.exists():
+        s = p.read_text()
+        t |= set(re.findall(r'[\w.+-]+@[\w-]+\.[\w.]+', s))               # emails
+        t |= set(re.findall(r'https?://[^\s"\',}]+', s))                    # urls
+        t |= {h for h in (u.split('/')[2] for u in re.findall(r'https?://[^\s"\',}]+', s)) if h not in PUBLIC}  # private hosts
+        t |= set(re.findall(r'\b\d[\d,.]{5,}\d\b', s))                      # phone, salaries
+        t |= set(re.findall(r'linkedin\.com/in/[\w-]+|github\.com/[\w-]+', s)) - {'github.com/you'}
+        for n in re.findall(r'(?:first|last):\s*([^,}\n]+)', s):          # names, whole and per word
+            t |= {n, *n.split()}
+    x = root / 'assets/leak-extra.txt'
+    if x.exists():
+        t |= {l.strip() for l in x.read_text().splitlines() if l.strip() and not l.startswith('#')}
+    return sorted({a.strip().strip('"\'') for a in t if len(a.strip().strip('"\'')) >= 4})
+
+def check(root):
+    toks = tokens(root)
+    if not toks:
+        print('leak-check: no private values found (assets/profile.yaml missing?)'); return 2
+    hits = []
+    revs = sh('git', 'rev-list', 'HEAD', cwd=root).split()
+    meta = sh('git', 'log', '--format=%an %ae %cn %ce %s %b', 'HEAD', cwd=root).lower()
+    for h in re.findall(r'github\.com/([\w-]+)', (root / 'assets/profile.yaml').read_text() if (root / 'assets/profile.yaml').exists() else ''):
+        meta = meta.replace(h.lower(), '')  # public GitHub handle may appear in commit author
+    for i, tok in enumerate(toks):
+        args = ['git', 'grep', '-l', '-I', '-i', '-F', '-e', tok]
+        for where, out in (('tree', sh(*args, cwd=root)), *(('history', sh(*args, r, cwd=root)) for r in revs)):
+            if out.strip(): hits.append(f'{where}: token #{i} ({tok[:2]}***) in {out.split()[0].split(":")[-1]}')
+        if tok.lower() in meta: hits.append(f'commit metadata: token #{i} ({tok[:2]}***)')
+    for h in dict.fromkeys(hits): print('LEAK', h)
+    print(f'leak-check: {len(toks)} private tokens, {len(set(hits))} hits')
+    return 1 if hits else 0
+
+def selftest():
+    d = pathlib.Path(tempfile.mkdtemp())
+    run = lambda *a: subprocess.run(a, cwd=d, check=True, capture_output=True)
+    run('git', 'init', '-q'); run('git', 'config', 'user.name', 'x'); run('git', 'config', 'user.email', 'x@x.test')
+    (d / 'assets').mkdir(); (d / 'assets/profile.yaml').write_text('email: a.person@mail.test\n')
+    (d / '.gitignore').write_text('assets/*\n'); (d / 'f.md').write_text('hi\n')
+    run('git', 'add', '-A'); run('git', 'commit', '-qm', 'ok')
+    assert check(d) == 0, 'clean repo flagged'
+    (d / 'f.md').write_text('mail a.person@mail.test\n'); run('git', 'commit', '-qam', 'bad')
+    assert check(d) == 1, 'leak not caught'
+    (d / 'f.md').write_text('hi\n'); run('git', 'commit', '-qam', 'fix')
+    assert check(d) == 1, 'leak in history not caught'
+    print('selftest ok')
+
+if __name__ == '__main__':
+    if '--selftest' in sys.argv: selftest()
+    else: sys.exit(check(pathlib.Path(sh('git', 'rev-parse', '--show-toplevel').strip())))

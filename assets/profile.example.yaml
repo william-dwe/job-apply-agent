@@ -1,0 +1,16 @@
+# Copy to profile.yaml and fill in. Never commit profile.yaml (gitignored).
+name: {first: First, last: Last Name}
+email: you@example.com
+phone: {country: "+62", number: "8123456789"}
+headline: Your Headline
+links: {linkedin: "https://linkedin.com/in/you", website: "https://example.com", github: "https://github.com/you"}
+location: Your City
+work_authorization: {Indonesia: true}
+notice_period: 1 month
+expected_salary_monthly_take_home_idr: "10,000,000 - 15,000,000"
+# Sensitive: only set a default if you approve it. After `expires` the agent asks again and updates both lines.
+current_salary_monthly_take_home_idr: "9,000,000"
+current_salary_expires: 2027-01-01
+files: {resume: /home/node/files/resume.pdf, photo: /home/node/files/profile.jpg}
+browser_url: https://browser.example.com   # URL of your streamed browser; env BROWSER_URL overrides
+# Any value may be written env:NAME to read it from an environment variable instead of this file.

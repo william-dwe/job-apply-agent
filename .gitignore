@@ -1,0 +1,15 @@
+# Personal data: CV, photo, answers and application history never get committed.
+assets/*
+!assets/README.md
+!assets/profile.example.yaml
+applications/*
+!applications/README.md
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.webp
+.env
+
+# Private site notes, leak list
+skills/job-apply/reference/*-private.md

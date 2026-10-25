@@ -34,12 +34,16 @@ and submit. **Click Submit only when the user permits it (see Submitting).** You
    If it needs US work authorization or relocation the profile doesn't cover, ask before continuing.
 3. Click Apply. For an external site, follow the redirect (it may open a new tab: use `browser_tabs`). Note the final URL and ATS type.
 4. List every field with required/optional. Fill what `profile.yaml` answers. For dropdowns that are custom menus (not `<select>`), read the options first and ask the user if the choice is a judgement call.
-5. Upload the CV (and photo if required) with the `/home/node/files/...` paths. Click the upload button first so the file chooser is open, then call `browser_file_upload`.
+5. Upload the CV (and photo if required) with the `/home/node/files/...` paths. LinkedIn Easy Apply: see Easy Apply below. Click the upload button first so the file chooser is open, then call `browser_file_upload`.
 6. Read the page back and report a field-by-field table, validation errors, and which fields you left empty and why. If a CAPTCHA is present, attempt it (max 2 retries); on failure stop and ask the user to solve it. Ask the user whether to submit.
 7. Save the posting text to `applications/jd/<id>.md`. Add a `log.md` row (status `form filled`; fill only what you observed: company, role, location, mode, source, url, ats, expected_salary, cv_version) and a `form filled` line in `events.md`. Set `submitted` and later states only on the user's word, or after you clicked Submit with permission and saw the confirmation page (see `reference/tracker.md`).
 
 ## Submitting
 Click Submit only if the user has said so in this chat for this application (e.g. "submit it"). A standing instruction counts only for the scope they named. Before clicking, read the form back once more: no empty required fields, no validation errors. After clicking, confirm on the confirmation page or message. Then set `submitted` and log an event saying the agent submitted at the user's request. On a CAPTCHA, new required field or error, stop and report; never click Submit twice.
+
+## Easy Apply
+- CV: LinkedIn keeps its own copy of the CV. Hash `assets/upload/resume.pdf` (`sha256sum`, first 8 chars) and compare with `applications/cv-versions.md`. Hash matches: select that already-uploaded copy. Hash differs or no entry: upload `/home/node/files/resume.pdf` through the modal's Upload resume button, check it is the selected radio, then add a row to `cv-versions.md`. Never submit with an older LinkedIn copy selected.
+- Channels: when the user lets you submit, submit on LinkedIn, then also apply on the company's own job page if one exists (search the company careers site; add a separate `log.md` row with `source` = company site). Not found, or it needs login: report it, do not guess.
 
 ## Tracking
 When the user reports news (submitted, screening, interview, offer, rejected, withdrawn), update `log.md` and append to `events.md` per `reference/tracker.md`. Requests like "tracker", "what's pending" or "stats" are answered from those files.

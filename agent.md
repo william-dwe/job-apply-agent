@@ -20,6 +20,7 @@ bin/leak-check                       fails if a private value is in tracked file
 - Browser: Playwright MCP driving a shared streamed Chromium. `assets/upload/` is mounted read-only into the MCP container as `/home/node/files`; uploads must use those paths.
 - Repo root: env `JOB_APPLY_DIR`, else the repo the skill symlink points into. Browser URL: env `BROWSER_URL`, else `browser_url` in `profile.yaml`.
 - Any `profile.yaml` value written `env:NAME` is read from environment variable `NAME` (`printenv NAME`). Use it for values you do not want on disk.
+- Memory: the shared Chromium has no memory cap; too many tabs OOM-killed the VPS. Keep at most 2 tabs open. Open one tab per job, and close it (`browser_tabs` action `close`) as soon as the application is submitted, skipped, or blocked. Close finished confirmation pages, company-site detours and blank tabs the moment you leave them. Never open a new tab for a lookup when the current one can navigate. Before ending a task, list tabs and close all but one. Prefer `browser_find` or targeted `browser_evaluate` over full snapshots on LinkedIn.
 
 ## Keeping it public-safe
 - Never commit: `assets/*` (except README and example), `applications/*` (except README), `*-private.md`, `.env`, PDFs, images, or anything with real names, emails, phone, salary, private URLs, host paths, or employers you applied to. `.gitignore` is the safety net, not the plan.

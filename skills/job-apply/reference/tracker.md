@@ -19,6 +19,7 @@ Status in `log.md` always equals the latest event. Update both in the same step.
 
 ## Rules
 - Only the user's word moves a row to `submitted` or beyond. Exception: when you clicked Submit with the user's permission and the confirmation page appeared, set `submitted` and log that the agent submitted. Never infer any other status from a page.
+- `cv_version` = `<file> sha <first 8 of sha256>`; Easy Apply adds `(LinkedIn copy)`. The hash-to-LinkedIn-copy map lives in `applications/cv-versions.md` (private).
 - Unknown or unobservable fields stay blank. No excitement score, no invented rejection reason.
 - On `submitted`: set `applied_on`, `next_action` = follow up, `next_on` = applied_on + 14 days.
 - Max 2 follow-ups (the second one week after the first). After the second with no reply, ask the user whether to close.

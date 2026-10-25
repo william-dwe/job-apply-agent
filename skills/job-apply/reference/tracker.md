@@ -18,7 +18,7 @@ form filled, submitted, screening, interview, offer, accepted, closed.
 Status in `log.md` always equals the latest event. Update both in the same step.
 
 ## Rules
-- Only the user's word moves a row to `submitted` or beyond. Agent never infers status from the page.
+- Only the user's word moves a row to `submitted` or beyond. Exception: when you clicked Submit with the user's permission and the confirmation page appeared, set `submitted` and log that the agent submitted. Never infer any other status from a page.
 - Unknown or unobservable fields stay blank. No excitement score, no invented rejection reason.
 - On `submitted`: set `applied_on`, `next_action` = follow up, `next_on` = applied_on + 14 days.
 - Max 2 follow-ups (the second one week after the first). After the second with no reply, ask the user whether to close.

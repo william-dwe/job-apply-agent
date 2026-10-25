@@ -1,7 +1,7 @@
 # job-apply-agent
 
 Give the agent a job posting URL; it opens it, follows the Apply link, fills the form from your profile and CV in a
-shared browser you can watch, and stops so you can review and click Submit.
+shared browser you can watch, and stops so you can review. It clicks Submit only if you tell it to.
 
 ## Pieces
 - **Skill** `skills/job-apply`: instructions for Hermes. Symlink it into `~/.hermes/skills/job-apply`.
@@ -18,7 +18,7 @@ shared browser you can watch, and stops so you can review and click Submit.
 
 ## Use
 Tell Hermes: "apply to https://www.linkedin.com/jobs/view/<id>/". It reports the job, fills the form, and lists what it
-could not answer. It attempts any CAPTCHA (max 2 retries, then asks you). You check the form at the browser URL and submit.
+could not answer. It attempts any CAPTCHA (max 2 retries, then asks you). You check the form at the browser URL and submit, or tell the agent to. It fills mandatory fields only.
 
 ## Status
 v0.1. Verified on LinkedIn to an external custom form (a company's custom form). Greenhouse, Lever, Workday and LinkedIn Easy Apply are untested here.

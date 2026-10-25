@@ -28,9 +28,10 @@ bin/leak-check                       fails if a private value is in tracked file
 - Commit as a noreply identity, not a personal email. Push `main` only; do not push other local branches.
 
 ## Rules
-- Agents stop before Submit; the user submits. Agents may attempt a CAPTCHA (max 2 retries), then stop and ask the user.
+- Agents stop before Submit and ask. They click Submit only when the user permits it for that application (see `skills/job-apply/SKILL.md`, Submitting). Agents may attempt a CAPTCHA (max 2 retries), then stop and ask the user.
+- Share the minimum: fill mandatory fields only; leave optional fields empty, especially salary, address and location. Sensitive mandatory fields get the least precise value that passes. The street `address` in `profile.yaml` is for forms that demand it.
 - Do not invent answers; unknown or sensitive fields are asked, not guessed. Current salary comes from `profile.yaml` only until `current_salary_expires` (6 months after approval); then ask again and refresh it.
-- Only the user's word moves an application to `submitted` or later (see `skills/job-apply/reference/tracker.md`).
+- Only the user's word moves an application to `submitted` or later, except after an agent-clicked, user-permitted Submit with a confirmation page (see `skills/job-apply/reference/tracker.md`).
 - Edit skills here, then `git commit`. Keep `SKILL.md` short; put site-specific detail in `reference/`.
 - New skill = new directory under `skills/`, then symlink it: `ln -s "$PWD/skills/<name>" ~/.hermes/skills/<name>`.
 - The upstream plugin we borrowed ideas from is a sibling clone `../job-apply-plugin` (MIT, written for Claude in Chrome); reference only, don't edit.
